@@ -1,0 +1,54 @@
+date,estuary,camera,launch,deploy_time,retrieve_time,tide,high_tide,low_tide,waypoint_name,northing,easting,tl_name,tl_sn,tl_start,cam_start,cam_stop,interval_time,record_time,habitat,cover_type,notes
+2022/05/01,salmon,5,gp001,9:02,16:33,rising,15:30,9:15,sal_gp05,,,TL_5,10541983,11:00,11:00,15:00,10,2,meadow,NA,
+2022/05/01,salmon,4,gp002,10:18,16:41,rising,15:30,9:15,sal_gp04," 50°22'21.43""N","125°56'43.85""W",TL_4,10609545,11:00,11:00,15:00,10,2,meadow,NA,
+2022/05/01,salmon,3,gp003,9:55,17:09,rising,15:30,9:15,sal_gp03,,,TL_3,10602059,11:00,11:00,15:00,10,2,meadow,NA,
+2022/05/04,englishman,1,gp004,9:59,11:20,falling,7:30,14:30,eng_gp01,,,TL_1,10602100,10:30,10:30,14:30,10,1,beach,lwd,dewatered before filming
+2022/05/04,englishman,2,gp005,10:13,15:45,falling,7:30,14:30,eng_gp02,,,TL_2,10550078,10:30,10:30,14:30,10,1,beach,lwd,"below tide, not dewaterd"
+2022/05/04,englishman,3,gp006,10:24,15:48,falling,7:30,14:30,eng_gp03,,,TL_3,10602059,10:30,10:30,14:30,10,1,marsh,lwd,"below tide, not dewaterd"
+2022/05/04,englishman,4,gp007,10:37,15:51,falling,7:30,14:30,eng_gp04,,,TL_4,10609545,10:30,10:30,14:30,10,1,marsh,lwd,"below tide, not dewaterd"
+2022/05/04,englishman,5,gp008,10:52,15:55,falling,7:30,14:30,eng_gp05,,,TL_5,10541983,10:30,10:30,14:30,10,1,meadow,lwd,"below tide, not dewaterd, coho present"
+2022/05/10,nanaimo,1,gp009,9:46,19:57,rising,15:00,9:40,nam_gp01,,,TL_1,20320940,9:46,11:00,15:00,10,1,beach,lwd,lwd placed there
+2022/05/10,nanaimo,2,gp010,9:59,19:49,rising,15:00,9:40,nam_gp02,,,TL_2,NA,NA,11:00,15:00,10,1,beach,lwd,lwd placed there
+2022/05/10,nanaimo,3,gp011,10:11,19:45,rising,15:00,9:40,nam_gp03,,,TL_3,NA,NA,11:00,15:00,10,1,beach,lwd,lwd placed there
+2022/05/10,nanaimo,4,gp012,10:21,19:40,rising,15:00,9:40,nam_gp04,,,TL_4,NA,NA,11:00,15:00,10,1,beach,lwd,lwd placed there
+2022/05/10,nanaimo,5,gp013,10:31,19:38,rising,15:00,9:40,nam_gp05,,,TL_5,NA,NA,11:00,15:00,10,1,beach,lwd,lwd placed there
+2022/05/13,cowichan,1,gp014,13:38,19:55,rising,17:00,10:00,cow_gp01,,,TL_1,10602139,9:00,13:00,17:00,10,1,marsh,lwd,"water at kneecap height at install, salmon in vicinity. "
+2022/05/13,cowichan,2,gp015,13:49,19:49,rising,17:00,10:00,cow_gp02,,,TL_2,10550078,9:00,13:00,17:00,10,1,marsh,lwd,
+2022/05/13,cowichan,3,gp016,13:59,20:01,rising,17:00,10:00,cow_gp03,,,TL_3,10602059,9:00,13:00,17:00,10,1,marsh,lwd,
+2022/05/15,salmon,1,gp017,10:40,19:16,rising,14:30,8:15,sal_gp01-2,,,TL_3,10602059,10:30,10:30,14:30,10,1,beach,lwd,lwd added
+2022/05/15,salmon,2,gp018,10:56,19:20,rising,14:30,8:15,sal_gp02-2,,,TL_2,10550078,10:30,10:30,14:30,10,1,marsh,lwd,lwd added
+2022/05/15,salmon,3,gp019,11:09,19:25,rising,14:30,8:15,sal_gp03-2,,,TL_1,10602139,10:30,10:30,14:30,10,1,marsh,bank,
+2022/05/15,salmon,4,gp021,11:54,19:47,rising,14:30,8:15,sal_gp04-2,,,TL_4,10609545,10:30,10:30,14:30,10,1,meadow,NA,
+2022/05/15,salmon,5,gp020,11:47,19:44,rising,14:30,8:15,sal_gp05-2,,,TL_5,10541983,10:30,10:30,14:30,10,1,meadow,other,
+2022/05/17,salmon,1,gp022,10:43,19:54,rising,16:15,10:00,sal_gp02-2,,,TL_1,10602139,12:00,12:00,16:00,10,1,marsh,NA,
+2022/05/17,salmon,2,gp023,10:58,19:51,rising,16:15,10:00,sal_gp03-2alt,,,TL_2,10550078,12:00,12:00,16:00,10,1,marsh,bank,
+2022/05/17,salmon,3,gp024,11:39,19:55,rising,16:15,10:00,sal_gp03-new,,,TL_5,10541983,12:00,12:00,16:00,10,1,marsh,lwd,Cam 3 (new site) failed to launch. 
+2022/05/17,salmon,4,gp025,11:28,20:00,rising,16:15,10:00,sal_gp04-2,,,TL_4,10609545,12:00,12:00,16:00,10,1,meadow,lwd,
+2022/05/17,salmon,5,gp026,11:18,20:04,rising,16:15,10:00,sal_gp05-2,,,TL_3,10602059,12:00,12:00,16:00,10,1,meadow,lwd,
+2022/05/23,englishman,1,gp029,9:45,17:04,rising,12:00,17:00,eng-gp01-2,,,TL_1,10602139,12:30,12:30,16:30,10,1,beach,lwd,
+2022/05/23,englishman,2,gp028,9:36,17:11,rising,12:00,17:00,eng_gp02,,,TL_2,10550078,12:30,12:30,16:30,10,1,marsh,lwd,
+2022/05/23,englishman,3,gp027,9:29,17:17,rising,12:00,17:00,eng_gp03,,,TL_3,10602509,12:30,12:30,16:30,10,1,marsh,lwd,"Site 3,4,5 continuously disconnected. tides do not flood these sites all day. "
+2022/05/23,englishman,4,gp030,9:59,17:23,rising,12:00,17:00,eng_gp04,,,TL_4,10609545,12:30,12:30,16:30,10,1,meadow,lwd,"Site 3,4,5 continuously disconnected. tides do not flood these sites all day. "
+2022/05/23,englishman,5,gp031,10:11,17:30,rising,12:00,17:00,eng_gp05,,,TL_5,10504462,12:30,12:30,16:30,10,1,meadow,lwd,"Site 3,4,5 continuously disconnected. tides do not flood these sites all day. "
+2022/05/27,cluxewe,1,gp032,8:22,13:58,rising,12:00,18:00,clu_gp01,,,TL_1,10602139,8:30,8:30,12:30,10,1,marsh,other,cover=grass
+2022/05/27,cluxewe,2,gp033,8:27,14:01,rising,12:00,18:00,clu_gp02,,,TL_2,10550078,8:30,8:30,12:30,10,1,marsh,lwd,salmon visibly present at deployment. 
+2022/05/27,cluxewe,3,gp034,8:35,14:05,rising,12:00,18:00,clu_gp03,,,TL_3,10602509,8:30,8:30,12:30,10,1,meadow,other,cover=grass
+2022/05/27,cluxewe,4,gp035,8:40,14:07,rising,12:00,18:00,clu_gp04,,,TL_4,10609545,8:30,8:30,12:30,10,1,meadow,lwd,4 and 5 very close (~10m)
+2022/05/27,cluxewe,5,gp036,8:45,14:09,rising,12:00,18:00,clu_gp05,,,TL_5,10504462,8:30,8:30,12:30,10,1,meadow,other,"cover=grass, 4 and 5 very close (~10m), completely dewetted above 5. "
+2022/06/07,salmon,2,gp040,9:11,unknown,falling,8:00,16:15,sal_gp03-2,,,TL_2,10550078,8:30,8:30,12:30,10,1,marsh,bank,"sal_gp03-alt not used (dewatered), used sal_gp03-2 (disconected), sal_gp02 not deployed. "
+2022/06/07,salmon,3,gp039,8:45,unknown,falling,8:00,16:15,sal_gp03-new,,,TL_3,10602509,8:30,8:30,12:30,10,1,marsh,lwd,
+2022/06/07,salmon,4,gp038,8:37,unknown,falling,8:00,16:15,sal_gp04-2,,,TL_4,10609545,8:30,8:30,12:30,10,1,meadow,lwd,
+2022/06/07,salmon,5,gp037,8:29,unknown,falling,8:00,16:15,sal_gp05-2,,,TL_5,10504462,8:30,8:30,12:30,10,1,meadow,lwd,TL_5 forgotten (left logging) used again 2022-07-02
+2022/06/12,englishman,2,gp044,unknown,20:49,rising,14:00,10:45,eng_gp02,,,TL_2,10550078,14:00,14:00,18:00,10,1,marsh,lwd,"Cam 1 not deployed (unretrievable at HT), Temp data missing"
+2022/06/12,englishman,3,gp043,unknown,20:43,rising,14:00,10:45,eng_gp03,,,TL_3,10602509,14:00,14:00,18:00,10,1,marsh,lwd,"Cam 1 not deployed (unretrievable at HT), Temp data missing"
+2022/06/12,englishman,4,gp042,unknown,20:36,rising,14:00,10:45,eng_gp04,,,TL_4,10609545,14:00,14:00,18:00,10,1,meadow,lwd,"Cam 1 not deployed (unretrievable at HT), Temp data missing"
+2022/06/12,englishman,5,gp041,unknown,20:28,rising,14:00,10:45,eng_gp05,,,TL_1,10602139,14:00,14:00,18:00,10,1,meadow,lwd,"Cam 1 not deployed (unretrievable at HT), Temp data missing"
+2022/06/29,englishman,2,gp045,12:44,17:47,rising,8:00,13:00,eng_gp02,,,TL_2,10550078,13:30,13:30,17:30,10,1,marsh,lwd,
+2022/06/29,englishman,3,gp046,12:51,17:45,rising,8:00,13:00,eng_gp03,,,TL_3,10602509,13:30,13:30,17:30,10,1,marsh,lwd,
+2022/06/29,englishman,4,gp047,13:00,17:38,rising,8:00,13:00,eng_gp04,,,TL_4,10609545,13:30,13:30,17:30,10,1,meadow,lwd,
+2022/06/29,englishman,5,gp048,13:08,17:33,rising,8:00,13:00,eng_gp05,,,TL_1,10602139,13:30,13:30,17:30,10,1,meadow,lwd,Cam 5 not tidally influence on this day. 
+2022/07/02,salmon,1,gp049,10:46,19:02,rising,17:30,10:45,sal_gp02-2,,,NA,NA,NA,14:00,18:00,10,1,beach,lwd,TL used for Phoebe's project. 
+2022/07/02,salmon,2,gp050,10:57,18:56,rising,17:30,10:45,sal_gp03-2alt,,,TL_2,10550078,14:00,14:00,18:00,10,1,marsh,lwd,TL kept logging from 2022/06/29
+2022/07/02,salmon,3,gp051,11:06,18:44,rising,17:30,10:45,sal_gp03-new,,,TL_3,10602509,14:00,14:00,18:00,10,1,marsh,bank,Cam 3 water compromised :(. TL kept logging from 2022/06/29.
+2022/07/02,salmon,4,gp052,11:11,18:33,rising,17:30,10:45,sal_gp04-2,,,TL_4,10609545,14:00,14:00,18:00,10,1,meadow,NA,TL kept logging from 2022/06/29
+2022/07/02,salmon,5,gp053,11:20,18:28,rising,17:30,10:45,sal_gp05-2,,,TL_5,10504462,14:00,14:00,18:00,10,1,meadow,other,TL_5 kept logging from 2022-06-07
