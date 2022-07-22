@@ -2,12 +2,11 @@
 
 # Initial Setup --
 library(tidyverse)
-library(ggplot2)
 library(dplyr)
 library(plyr)
 library(lubridate)
 
-# Read in Data
+# Read in Dataframes
 ## Camera deployment data
 deploy <- read_csv("data/gp_deployment.csv")  #gopro deployment information
   
