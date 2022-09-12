@@ -1,5 +1,5 @@
 #Testing zeroinfl() function with data 
-
+ 
 require(ggplot2)
 require(pscl)
 require(boot)
