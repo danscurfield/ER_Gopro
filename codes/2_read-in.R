@@ -4,18 +4,37 @@ library(ggplot2)
 library(ggpubr)
 
 #Read in data
-salmon <- read_csv("data/salmon.csv")
+salmon <- read_csv("data/salmon.csv") #%>%
+  drop_na(salmonid_sp)
 View(salmon)
 
 salmon$std_tide <- salmon$bed_elevation-salmon$tide_height
-salmon$std_tide_poisson <- salmon$std_tide + 1.65
+salmon$std_tide_poisson <- salmon$std_tide + 1.51
 
-salmon$nozerosalmonid <- salmon$salmonid_sp %>%
-  lapply(na_if, y = 0) %>%
-  as.numeric()
+#should exclude launch "GP040" as it was a site used once and was not tidally dewetted as it was supposed to. 
+#Gp038 too?
+
+# salmon$nozerosalmonid <- salmon$salmonid_sp %>%
+#   lapply(na_if, y = 0) %>%
+#   as.numeric()
+
+## mutate data to include all tide heights beyond height at lowest site and convert CPUE to a presence absence binomial
+
+#create a dataframe to add zeros to all of the NA for tides too low for salmon presence
+#convert to zero for NA's below site wetted elevation - should be on 10 min intervals just like camera.
+#Make giant if statement (good luck)
+
+salmon_pa <- read_csv("data/salmon_pa.csv")
+
+salmon_pa$salmonid_pa <- ifelse(salmon_pa$salmonid_sp=="0", 0, 1)
+salmon_pa$sculpin_pa <- ifelse(salmon_pa$sculpin_sp=="0", 0, 1)
+salmon_pa$flatfish_pa <- ifelse(salmon_pa$flatfish_sp=="0", 0, 1)
+
+salmon_pa <- salmon_pa %>%
+  subset(select=-c(5:17,20:33))
+
   
-  
-#visualise data for normality
+#########visualise data for normality########
 hist(salmon$salmonid_sp, density = NULL)
 hist(salmon$nozerosalmonid, density = NULL)
 

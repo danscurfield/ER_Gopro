@@ -5,12 +5,13 @@ library(dplyr)
 library(MASS)
 require(pscl)
 library(boot)
+library(ggfan)
 
-
-salmon <- within(salmon, {
-  salmonid_sp <- factor(salmonid_sp)
-  std_tide_poisson <- factor(std_tide_poisson)
-})
+##might not need this - factor conflicts with ggplot 'continuous scale'
+# salmon <- within(salmon, {
+#   salmonid_sp <- factor(salmonid_sp)
+#   std_tide_poisson <- factor(std_tide_poisson)
+# })
 
 ggplot(salmon, aes(x = std_tide_poisson, y = salmonid_sp)) +
   geom_point() +
@@ -42,13 +43,15 @@ shapiro.test(salmon$salmonid_sp) #From the output, the p-value > 0.05 implying t
 
 #run GLM or GAM
 #Negative binomial model
-M1 <- glm.nb(salmonid_sp ~ 
-               std_tide_poisson, 
-             data = salmon)
 
-summary(M1)
+# M1 <- glm.nb(salmonid_sp ~ 
+#                std_tide_poisson, 
+#              data = salmon)
+# 
+# summary(M1)
 
 ### Poisson GLM
+
 S1 <- glm(salmonid_sp ~ std_tide_poisson + habitat,
           family = "poisson",
           data = salmon)
@@ -56,29 +59,31 @@ S1 <- glm(salmonid_sp ~ std_tide_poisson + habitat,
 summary(S1)
 
 ## Check for over/underdispersion in the model
-E2 <- resid(S1, type = "pearson")
-N <- nrow(salmon)-sum(is.na(salmon$salmonid_sp)) # #of footage
-p  <- length(coef(S1))   
-sum(E2^2) / (N - p) #some underdispersion
+
+# E2 <- resid(S1, type = "pearson")
+# N <- nrow(salmon)-sum(is.na(salmon$salmonid_sp)) # #of footage
+# p  <- length(coef(S1))   
+# sum(E2^2) / (N - p) #some underdispersion
 
 
 ### Negative Binomial GLM
 
-S2 <- glm.nb(salmonid_sp ~ std_tide_poisson,
-             data = salmon)
-
-summary(S2)
+# S2 <- glm.nb(salmonid_sp ~ std_tide_poisson,
+#              data = salmon)
+# 
+# summary(S2)
 
 # Dispersion statistic
-E2 <- resid(S2, type = "pearson")
-N  <- nrow(salmon)-sum(is.na(salmon$salmonid_sp)) # #of footage
-p  <- length(coef(S2)) + 1  # '+1' is for variance parameter in NB
-sum(E2^2) / (N - p) #some underdispersion
+
+# E2 <- resid(S2, type = "pearson")
+# N  <- nrow(salmon)-sum(is.na(salmon$salmonid_sp)) # #of footage
+# p  <- length(coef(S2)) + 1  # '+1' is for variance parameter in NB
+# sum(E2^2) / (N - p) #some underdispersion
 
 #Zero-Inflated Poisson GLM
 #For no reggressors for zero component use | 1, in the model
 
-S3 <- zeroinfl(salmonid_sp ~ std_tide_poisson | 1, dist = 'poisson', data = salmon)
+S3 <- zeroinfl(salmonid_sp ~ std_tide_poisson+(1|habitat) | 1, dist = 'poisson', data = salmon)
 summary(S3 <- zeroinfl(salmonid_sp ~ std_tide_poisson | 1, dist = 'poisson', data = salmon))
 
 summary(S3)
@@ -119,6 +124,7 @@ res <- boot(salmon, f, R = 1200, parallel = "snow", ncpus = 4)
 
 ## print results
 res
+
 
 ## basic parameter estimates with percentile and bias adjusted CIs
 parms <- t(sapply(c(1, 3, 5), function(i) {
@@ -167,22 +173,89 @@ expparms
 #count_std_tide_poisson 1.522033 1.190495 1.993396 1.196349 1.996585
 #zero_(Intercept)       3.193809 2.162525 5.279091 2.074512 4.880611
 
-# use expand.grid function to help predict. 
+# use expand.grid function to help predict. (maybe later)
 
-newdata1 <- expand.grid(0:1, factor(0:1), 1:4)
-colnames(newdata1) <- "tide height"
-newdata1 <- subset(newdata1, subset=(child<=persons))
-newdata1$phat <- predict(m1, newdata1)
+newdata1 <- expand.grid(std_tide_poisson = seq(0, 4, 0.2))
+newdata1$phat <- predict(S3, newdata = newdata1, interval='confidence')
+newdata1
 
-ggplot(newdata1, aes(x = child, y = phat, colour = factor(persons))) +
-  geom_point() +
+# ci <- predict(S3, newdata = newdata1, interval="confidence", level = 0.95)
+# predict(S1, interval = "confidence")
+# 
+# ci
+# 
+# new_df <- cbind(newdata1, ci)
+# 
+# new_df <- cbind(data1, temp_var)
+# 
+# ggplot(newdata1, aes(std_tide_poisson, phat))+
+#   geom_point() +
+#   geom_line(aes(y=lwr), color = "red", linetype = "dashed")+
+#   geom_line(aes(y=upr), color = "red", linetype = "dashed")+
+#   geom_smooth(method=lm, se=TRUE)
+# 
+# ggplot(salmon, aes(std_tide_poisson, salmonid_sp))+
+#   geom_point()+
+#   geom_smooth(method = lm, se = TRUE)
+# 
+# count_var <- predict(S3, interval="prediction")
+# 
+# new_df <- cbind(salmon, count_var)
+# 
+# ggplot(S3, aes(mo))
+# 
+# dat <- S3$model
+
+
+ggplot(newdata1, aes(x = std_tide_poisson, y = phat)) +
+  geom_point(color = 'blue')+
+  geom_line(color = 'blue') + 
+  labs(x = "tide", y = "count")+
+  geom_point(salmon, mapping=aes(x = std_tide_poisson, y = salmonid_sp))+
+  xlim(0,4) +
+  ylim(0,20)
+  #geom_ribbon(data = newdata1, aes(x = std_tide_poisson, ymin = low, ymax = high), alpha = 0.1) +
   geom_line() +
-  facet_wrap(~camper) +
-  labs(x = "Number of Children", y = "Predicted Fish Caught")
+ # facet_wrap(~camper) + -> can use this for estuary "salmon",  "englishman"
+  labs(x = "tide", y = "count")+
+  geom_point(salmon, mapping=aes(x = std_tide_poisson, y = salmonid_sp))+
+  xlim(0,4) +
+  ylim(0,20)
+
+#plot results with confidence intervals etc. 
+
+S3.predict <- predict(S3)
+S3.predict <- as_tibble(S3$fitted.values)
+
+
+ggplot(salmon, aes(x = std_tide_poisson, y = salmonid_sp)) +
+  geom_point() +
+  #(data = newdata1, aes(x = std_tide_poisson, y = phat))+
+ geom_ribbon(data = newdata1, aes(x = std_tide_poisson, ymin = low, ymax = high), alpha = 0.1) 
+  xlim(0,4) +
+  ylim(0,20)
+  
 
 
 
-######Below is old modelling efforts
+ggplot(salmon, aes(x = std_tide_poisson, y = salmonid_sp)) +
+  geom_point() +
+  stat_smooth() +
+  xlim(0,5) +
+  ylim(0,20)
+
+
+
+
+
+
+
+
+
+
+
+
+######Below is old modelling efforts########
 View(S3)
 
 chisq <- chisq.test(x = S3$fitted.values, y = S3$y)

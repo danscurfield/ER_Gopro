@@ -38,19 +38,59 @@ sal_tides$datetime <- with(sal_tides, as.POSIXct(Date), format = "%m/%d/%Y %H:%M
 
 sal_tides$tide_height <- sal_tides$`predictions(m)`#rename to tide_height
   
-sal_tides <- select(sal_tides, -Date, -`predictions(m)`) #drop redundant columns
+sal_tides <- sal_tides %>% #drop redundant columns
+  subset(select=c("datetime", 'tide_height'))
+
+#convert datetime to 10 min using nearest tide height
+
+sal_tides_fd <- sal_tides %>%
+  mutate(sal_tides, floor_date(datetime, unit = '10 min')) %>%
+  subset(select = -datetime) %>%
+  dplyr::rename(datetime = `floor_date(datetime, unit = "10 min")`)
+
+sal_tides_cd <- sal_tides %>%
+  mutate(sal_tides, ceiling_date(datetime, unit = '10 min')) %>%
+  subset(select = -datetime) %>%
+  dplyr::rename(datetime = `ceiling_date(datetime, unit = "10 min")`)
+
+#Merge ceiling and floor datetime to get tide height on 10 min interval  
+sal_tides_10min <- merge(sal_tides_fd, sal_tides_cd, all = TRUE) 
   
 #combine and clean data
 
-## Join count, tide, site, and deployment dataframes
+#make Salmon Estuary CPUE dataframe
+##Join count, tide, site, and deployment dataframes
 
-salmon <- sal_tides %>% full_join(sal_counts, by = NULL, copy = FALSE, suffix = c(".x", ".y"), keep = FALSE) %>%
-  left_join(., deploy, by= c("launch", "camera", "date")) %>%
+salmon <- sal_counts %>% merge(sal_tides_10min, by = "datetime", copy = FALSE, suffix = c(".x", ".y"), all = TRUE)%>%
+  full_join(., deploy, by= c("launch", "date"))%>%
   left_join(., sal_info, by="waypoint_name") %>%
   unite("notes", c("notes.x","notes.y"), remove = FALSE, sep = " , ", na.rm = TRUE) %>%
-  select(-date, -time, -notes.x, -notes.y)
+  subset(select=-c(date, time, notes.x, notes.y, camera.x)) %>%
+  dplyr::rename(camera=camera.y)%>%
+  dplyr::rename(tide_type=tide)
 
 write_csv(salmon, file.path("data/salmon.csv"))
+
+#read in Salmon Estuary data frame with 0's for dewatered for Presence/Absemce
+sal_pa <- read_csv("data/sal_video_review_pa.csv")
+sal_pa$datetime <- with(sal_pa, as.POSIXct(paste(date, time), format="%m/%d/%Y %H:%M:%S"))
+
+#make Salmon Estuary Presence-Absense dataframe
+##Join count, tide, site, and deployment dataframes
+
+salmon_pa <- sal_pa %>% merge(sal_tides_10min, by = "datetime", copy = FALSE, suffix = c(".x", ".y"), all = TRUE)%>%
+  full_join(., deploy, by= c("launch", "date"))%>%
+  left_join(., sal_info, by="waypoint_name") %>%
+  unite("notes", c("notes.x","notes.y"), remove = FALSE, sep = " , ", na.rm = TRUE) %>%
+  subset(select=-c(date, time, notes.x, notes.y, camera.x)) %>%
+  dplyr::rename(camera=camera.y)%>%
+  dplyr::rename(tide_type=tide)
+
+write_csv(salmon_pa, file.path("data/salmon_pa.csv"))
+
+
+
+
 
 #visualize data distribution (normal, linear?) use histogram?
 
