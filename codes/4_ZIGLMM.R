@@ -12,17 +12,17 @@
 library(glmmTMB)
 library(bbmle)
 
-# run models - ZIGLMM with random effects for site
-# zero-inflated model with poisson distribution
-fit_zipoisson_a = glmmTMB(salmonid_sp ~ std_tide_poisson * habitat + (1|waypoint_name),
+# run models - ZIGLMM with random effects for site and fixed effect for habitat
+# zero-inflated model with poisson distribution (* or + for habitat?)
+fit_zipoisson_a = glmmTMB(salmonid_sp ~ std_tide + habitat + (1|site),
   ziformula = ~ 1,
   data = salmon,
   family = poisson)
 
-# summary(fit_zipoisson_a)
+ summary(fit_zipoisson_a)
 
 #without fixed effect for habitat
-fit_zipoisson_b = glmmTMB(salmonid_sp ~ std_tide_poisson + (1|waypoint_name),
+fit_zipoisson_b = glmmTMB(salmonid_sp ~ std_tide + (1|site),
                         ziformula = ~ 1,
                         data = salmon,
                         family = poisson)
@@ -30,7 +30,7 @@ fit_zipoisson_b = glmmTMB(salmonid_sp ~ std_tide_poisson + (1|waypoint_name),
 summary(fit_zipoisson_b)
 
 #with random effect for habitat
-fit_zipoisson_c = glmmTMB(salmonid_sp ~ std_tide_poisson + (1|habitat),
+fit_zipoisson_c = glmmTMB(salmonid_sp ~ std_tide + (1|habitat),
                           ziformula = ~ 1,
                           data = salmon,
                           family = poisson)
@@ -38,7 +38,7 @@ fit_zipoisson_c = glmmTMB(salmonid_sp ~ std_tide_poisson + (1|habitat),
 # summary(fit_zipoisson_c)
 
 #zero-inflated glmm with random effect for site and w/o fixed effect for habitat is the best model - fit_zipoission_b
-# AICtab(fit_zipoisson_a, fit_zipoisson_b, fit_zipoisson_c)
+AICtab(fit_zipoisson_a, fit_zipoisson_b, fit_zipoisson_c)
 
 #fit model with negative bimomial distribution
 fit_zinbinom <- update(fit_zipoisson_b,family=nbinom2)
@@ -56,7 +56,8 @@ fit_hnbinom1 <- update(fit_zinbinom1,
                        ziformula=~.,
                        data=salmon,
                        family=truncated_nbinom1)
+summary(fit_hnbinom1)
 
 #evaluate model fit with hurdle model
-AICtab(fit_zipoisson_b, fit_zinbinom, fit_zinbinom1, fit_hnbinom1)
+AICtab(fit_zipoisson_a, fit_zinbinom, fit_zinbinom1, fit_hnbinom1)
   

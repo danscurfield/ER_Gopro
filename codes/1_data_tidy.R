@@ -1,5 +1,30 @@
 # Read in and tidying of gopro deployment, footage counts and site information
 
+#**INPUT**#
+#"gp_deployment.csv" - deployment information
+#"sal_video_review.csv" - salmon estuary fish count data
+#"sal_site_info.csv" - salmon estuary site information
+#"kelsey_bay1.csv":"kelsey_bay8.csv" - salmon estuary tide predicitons
+#"sal_video_review_pa.csv" - salmon estuary master spreadsheet that has manual edits to include zeros for all dewatered periods. Set up for presence-absence modelling (maybe CPUE).
+
+#**OUTPUT**#
+#"sal_tides.csv" - salmon estuary tide data for study period
+#"salmon.csv" - salmon estuary master spreadsheet
+#"salmon_zero.csv" - salmon estuary master spreadsheet with 
+#
+  
+#**PSEUDO-CODE**#
+#Step 1: read in deployment data, check structure and clean variable names
+#Step 2: read in video review (fish count) data, check structure and clean variable names
+#Step 3: read in site information, check structure and clean variable names
+#Step 4: read in tide prediction data, merge tables, check structure and clean variable names
+#Step 5: combine all tables to make a salmon estuary master dataframe and save as a .csv.
+#Step 6: read in a 
+
+#**Objectives**#
+#import estuary data and combine them into a master spreadsheet
+
+
 # Initial Setup --
 library(tidyverse)
 library(dplyr)
@@ -43,15 +68,14 @@ sal_tides <- sal_tides %>% #drop redundant columns
 
 #convert datetime to 10 min using nearest tide height
 
-sal_tides_fd <- sal_tides %>%
-  mutate(sal_tides, floor_date(datetime, unit = '10 min')) %>%
-  subset(select = -datetime) %>%
-  dplyr::rename(datetime = `floor_date(datetime, unit = "10 min")`)
+sal_tides_fd <- sal_tides
+sal_tides_fd$datetime <- floor_date(sal_tides$datetime, unit = "10 min") 
 
-sal_tides_cd <- sal_tides %>%
-  mutate(sal_tides, ceiling_date(datetime, unit = '10 min')) %>%
-  subset(select = -datetime) %>%
-  dplyr::rename(datetime = `ceiling_date(datetime, unit = "10 min")`)
+
+sal_tides_cd <- sal_tides
+sal_tides_cd$datetime <- ceiling_date(sal_tides$datetime, unit = "10 min") 
+
+
 
 #Merge ceiling and floor datetime to get tide height on 10 min interval  
 sal_tides_10min <- merge(sal_tides_fd, sal_tides_cd, all = TRUE) 
@@ -61,7 +85,7 @@ sal_tides_10min <- merge(sal_tides_fd, sal_tides_cd, all = TRUE)
 #make Salmon Estuary CPUE dataframe
 ##Join count, tide, site, and deployment dataframes
 
-salmon <- sal_counts %>% merge(sal_tides_10min, by = "datetime", copy = FALSE, suffix = c(".x", ".y"), all = TRUE)%>%
+salmon_master <- sal_counts %>% merge(sal_tides_10min, by = "datetime", copy = FALSE, suffix = c(".x", ".y"), all = TRUE)%>%
   full_join(., deploy, by= c("launch", "date"))%>%
   left_join(., sal_info, by="waypoint_name") %>%
   unite("notes", c("notes.x","notes.y"), remove = FALSE, sep = " , ", na.rm = TRUE) %>%
@@ -69,7 +93,7 @@ salmon <- sal_counts %>% merge(sal_tides_10min, by = "datetime", copy = FALSE, s
   dplyr::rename(camera=camera.y)%>%
   dplyr::rename(tide_type=tide)
 
-write_csv(salmon, file.path("data/salmon.csv"))
+write_csv(salmon, file.path("data/salmon_master.csv"))
 
 #read in Salmon Estuary data frame with 0's for dewatered for Presence/Absemce
 sal_pa <- read_csv("data/sal_video_review_pa.csv")
@@ -78,7 +102,7 @@ sal_pa$datetime <- with(sal_pa, as.POSIXct(paste(date, time), format="%m/%d/%Y %
 #make Salmon Estuary Presence-Absense dataframe
 ##Join count, tide, site, and deployment dataframes
 
-salmon_pa <- sal_pa %>% merge(sal_tides_10min, by = "datetime", copy = FALSE, suffix = c(".x", ".y"), all = TRUE)%>%
+salmon <- sal_pa %>% merge(sal_tides_10min, by = "datetime", copy = FALSE, suffix = c(".x", ".y"), all = TRUE)%>%
   full_join(., deploy, by= c("launch", "date"))%>%
   left_join(., sal_info, by="waypoint_name") %>%
   unite("notes", c("notes.x","notes.y"), remove = FALSE, sep = " , ", na.rm = TRUE) %>%
@@ -86,16 +110,5 @@ salmon_pa <- sal_pa %>% merge(sal_tides_10min, by = "datetime", copy = FALSE, su
   dplyr::rename(camera=camera.y)%>%
   dplyr::rename(tide_type=tide)
 
-write_csv(salmon_pa, file.path("data/salmon_pa.csv"))
-
-
-
-
-
-#visualize data distribution (normal, linear?) use histogram?
-
-hist(salmon$salmonid_sp, density = NULL)
-
-
-boxplot(sal_counts$salmonid_sp)
+write_csv(salmon_zero, file.path("data/salmon.csv"))
 

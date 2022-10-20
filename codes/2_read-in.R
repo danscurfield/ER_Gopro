@@ -1,39 +1,100 @@
+#**INPUT**#
+#"sal_tides.csv" - salmon estuary tide data for study period
+#"salmon.csv" - salmon estuary master spreadsheet
+#"salmon_zero.csv" - salmon estuary master spreadsheet with 
+
+
+#**OUTPUT**#
+#
+
+
+#**PSEUDO-CODE**#
+#Step 1: read in salmon estuary with 0's master spreadsheet. Manipulate data to get columns for modelling. 
+
+#Step 2: add presence absence data to main dataframe
+
+#**Objectives**#
+#import estuary data and combine them into a master spreadsheet
+
+
 
 # Initial Setup --
 library(ggplot2)
 library(ggpubr)
+library(tidyverse)
+library(dplyr)
+library(plyr)
+library(lubridate)
+
+#Step 1: read in salmon estuary with 0's master spreadsheet. Manipulate data to get columns for modelling. 
 
 #Read in data
-salmon <- read_csv("data/salmon.csv") #%>%
-  drop_na(salmonid_sp)
+salmon <- read_csv("data/salmon.csv") 
 View(salmon)
 
-salmon$std_tide <- salmon$bed_elevation-salmon$tide_height
-salmon$std_tide_poisson <- salmon$std_tide + 1.51
+#standardize tide height at each site by zero-ing tide height at first wetted.
+## waypoint_name and their respect elevation from sea level (0 tide)
+## sal_gp01-2 - 3.15 
+## sal_gp02-2 - 3.47
+## sal_gp03-2 - 3.47
+## sal_gp03-3 - 3.71
+## sal_gp03-new - 2.76
+## sal_gp04-2 - 3.32
+## sal_gp05-2 - 3.47
 
-#should exclude launch "GP040" as it was a site used once and was not tidally dewetted as it was supposed to. 
-#Gp038 too?
+salmon$cam_elev<- ifelse(salmon$waypoint_name=="sal_gp01-2", 3.15,
+                  ifelse(salmon$waypoint_name == "sal_gp02-2", 3.47, 
+                  ifelse(salmon$waypoint_name=="sal_gp03-2", 3.47,
+                  ifelse(salmon$waypoint_name=="sal_gp03-3", 3.71,
+                  ifelse(salmon$waypoint_name=="sal_gp03-new", 2.76,
+                  ifelse(salmon$waypoint_name=="sal_gp04-2", 3.32,
+                  ifelse(salmon$waypoint_name=="sal_gp05-2", 3.47, NA
+                         )))))))
+#to adequately zero the camera heights but keep zero data substract the difference bt lowest camera elevation from all camera elevations and exclude tide below same threshold (highest low tide). 
+## the highest low-tide of our study period is 1.59m which occured on 2022-06-07.(don't need this simce counts only go to daily low tide).
 
-# salmon$nozerosalmonid <- salmon$salmonid_sp %>%
-#   lapply(na_if, y = 0) %>%
-#   as.numeric()
+#create differece in height between lowest cameral elevation 
+## sal_gp03-new - 2.76
+## Do I need to add 1.59 to begin zeros at that point?
+## BEAUTIFUL!
 
-## mutate data to include all tide heights beyond height at lowest site and convert CPUE to a presence absence binomial
+salmon$tide_correction <- salmon$tide_height-(salmon$cam_elev-2.76)
+salmon$std_tide <- salmon$tide_height-(salmon$cam_elev-2.76)-(salmon$cam_elev-1.59)+1.59
 
-#create a dataframe to add zeros to all of the NA for tides too low for salmon presence
-#convert to zero for NA's below site wetted elevation - should be on 10 min intervals just like camera.
-#Make giant if statement (good luck)
+#convert waypoint_name strings to site names
+## sal_gp01-2 - sal1
+## sal_gp02-2 - sal2
+## sal_gp03-2 - sal3
+## sal_gp03-3 - sal4
+## sal_gp03-new - sal5
+## sal_gp04-2 - sal6
+## sal_gp05-2 - sal7
 
-salmon_pa <- read_csv("data/salmon_pa.csv")
+salmon$waypoint_name <- as.factor(salmon$waypoint_name)
+levels(salmon$waypoint_name)
+salmon$waypoint_name <- revalue(salmon$waypoint_name, c("sal_gp01-2"="sal1", "sal_gp02-2"="sal2", "sal_gp03-2"="sal3", "sal_gp03-3"="sal4", "sal_gp03-new"="sal5", "sal_gp04-2"="sal6", "sal_gp05-2"="sal7" ))
+levels(salmon$waypoint_name)
 
-salmon_pa$salmonid_pa <- ifelse(salmon_pa$salmonid_sp=="0", 0, 1)
-salmon_pa$sculpin_pa <- ifelse(salmon_pa$sculpin_sp=="0", 0, 1)
-salmon_pa$flatfish_pa <- ifelse(salmon_pa$flatfish_sp=="0", 0, 1)
+#exclude columns unnecessary for modelling and remove unnecesary rows
+## unneccesary rows = other estuary data, std tide <0, and filter trial launches. 
 
-salmon_pa <- salmon_pa %>%
-  subset(select=-c(5:17,20:33))
+salmon <- salmon %>%
+  subset(select=-c(2,4:11,14:15,17,20:25, 27:33,35:41)) %>%
+  subset(estuary!="cluxewe" & estuary!="englishman" & estuary!="nanaimo" & estuary!="cowichan" | is.na(estuary)) %>%
+  filter(std_tide>0 | is.na(std_tide)) %>%
+  dplyr::rename(site=waypoint_name) %>%
+  subset(launch!="gp001"&launch!="gp002"&launch!="gp003" | is.na(launch))
 
-  
+#mutate df to get presence absence data
+
+salmon$salmonid_pa <- ifelse(salmon$salmonid_sp=="0", 0, 1)
+salmon$sculpin_pa <- ifelse(salmon$sculpin_sp=="0", 0, 1)
+salmon$flatfish_pa <- ifelse(salmon$flatfish_sp=="0", 0, 1)
+
+
+
+#can probably delete below
+
 #########visualise data for normality########
 hist(salmon$salmonid_sp, density = NULL)
 hist(salmon$nozerosalmonid, density = NULL)
