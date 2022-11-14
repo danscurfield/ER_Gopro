@@ -1,5 +1,6 @@
 # Read in and tidying of gopro deployment, footage counts and site information
 
+
 #**INPUT**#
 #"gp_deployment.csv" - deployment information
 #"sal_video_review.csv" - salmon estuary fish count data
