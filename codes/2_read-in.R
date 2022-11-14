@@ -19,8 +19,8 @@
 
 
 # Initial Setup --
-library(ggplot2)
-library(ggpubr)
+#library(ggplot2)
+#library(ggpubr)
 library(tidyverse)
 library(dplyr)
 library(plyr)
@@ -57,9 +57,19 @@ salmon$cam_elev<- ifelse(salmon$waypoint_name=="sal_gp01-2", 3.15,
 ## sal_gp03-new - 2.76
 ## Do I need to add 1.59 to begin zeros at that point?
 ## BEAUTIFUL!
+## 
+## ... Did this calculation wrong. Need to subtract each site by the height at wetted then add 1.59 or whatever to include necesary 0 data.
+
+#salmon$tide_height is the height of the tide
+#salmon$tide_correction = tide height - (camera elevation - elevation of lowest camera). To have each site start counting close to a corrected 0m point.
+#salmon$std_tide is good! just need to make is so Salmon_sp etc. is NA when std_tide is negative! yeeehooo.
+
 
 salmon$tide_correction <- salmon$tide_height-(salmon$cam_elev-2.76)
-salmon$std_tide <- salmon$tide_height-(salmon$cam_elev-2.76)-(salmon$cam_elev-1.59)+1.59
+
+salmon$std_tide <- salmon$tide_height-(salmon$cam_elev-2.76)-(salmon$cam_elev-1.59)+1.59 
+
+
 
 #convert waypoint_name strings to site names
 ## sal_gp01-2 - sal1
@@ -79,11 +89,17 @@ levels(salmon$waypoint_name)
 ## unneccesary rows = other estuary data, std tide <0, and filter trial launches. 
 
 salmon <- salmon %>%
-  subset(select=-c(2,4:11,14:15,17,20:25, 27:33,35:41)) %>%
+  subset(select=-c(2,4:11,14:15,17,20:25, 27:33,35:40)) %>%
   subset(estuary!="cluxewe" & estuary!="englishman" & estuary!="nanaimo" & estuary!="cowichan" | is.na(estuary)) %>%
-  filter(std_tide>0 | is.na(std_tide)) %>%
+  #filter(std_tide>0 | is.na(salmonid_sp)) %>%
   dplyr::rename(site=waypoint_name) %>%
   subset(launch!="gp001"&launch!="gp002"&launch!="gp003" | is.na(launch))
+
+# exclude counts between 0 and 1.59 tide as it is the highest low tide over survey period.
+
+salmon$salmonid_sp <- ifelse(salmon$std_tide>0, salmon$salmonid_sp, NA)
+salmon$sculpin_sp <- ifelse(salmon$std_tide>0, salmon$sculpin_sp, NA)
+salmon$flatfish_sp <- ifelse(salmon$std_tide>0, salmon$flatfish_sp, NA)
 
 #mutate df to get presence absence data
 
