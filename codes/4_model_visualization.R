@@ -4,22 +4,85 @@
 #load packages
 library(ggplot2)
 library(ggeffects)
+library(ggridges)
 library(lubridate)
 
-# df_zipoission_b <- fit_zipoisson_b$frame %>%
-#   subset(select=-c(waypoint_name))
+#Visualize best model prediction
 
-#test plot
+plot(ggpredict(fit_zipoisson_b, terms = "tide_height [all]")) +
+  labs(
+    x = "Tide Height (m)", 
+    y = "Number of Juvenile Salmon",
+    title = "Predicted CPUE at Tide Height"
+  )
+
+#example plot
+#  plot(ggpredict(glmm.model, terms = "plant_density")) + 
+#  scale_y_continuous(limits = c(0, 20))
+
+ggplot(salmon, aes(x= std_tide, y = salmonid_sp))+
+  geom_point()+
+  stat_smooth(method = loess)+
+  xlim(0,4)+
+  ylim(0,20)
 
 
-plot(ggpredict(fit_zipoisson_b, terms = "tide_height"))+
-geom_point(salmon, aes(x = tide_height, y = salmonid_sp))
+ggplot(salmon, aes(x= std_tide, y = salmonid_sp, colour = site)) +
+  geom_point(aes(colour = NA))+
+  stat_smooth(aes(x = std_tide, y = salmonid_sp), method = loess)+
+  xlim(0,4) +
+  ylim(-4,10)
 
-+
-  scale_x_continuous(limits =c(0, 5))
+# plot above but without site Sal1 and Sal 2
+salmon_ggplot <- salmon %>%
+  subset(site!="sal1" & site!="sal2")
+  
+salmon_ggplot$site <- revalue(salmon_ggplot$site, c("sal3"="A - 1.90m", "sal4"="B - 2.04m", "sal5"="C - 2.76m", "sal6" = "E - 3.32m", "sal7" = "D - 3.20m"))
 
-plot(ggpredict(glmm.model, terms = "plant_density")) + 
-  scale_y_continuous(limits = c(0, 20))
+
+ggplot(salmon_ggplot, aes(x= std_tide, y = salmonid_sp, colour = site)) +
+  geom_point(aes(colour = NA))+
+  stat_smooth(aes(x = std_tide, y = salmonid_sp), method = loess)+
+  xlim(0,5) +
+  ylim(-4,10)
+ 
+
+# #example plot
+# ggplot(salmon, aes(x = std_tide, y = salmonid_sp, color = site))+
+#   geom_point()+
+#   stat_smooth(aes(x = std_tide, y = salmonid_sp), method = loess)+
+#   xlim(0,4) +
+#   ylim(0,10)
+
+
+#create ridgeline plots for individual sites
+
+ggplot(salmon, aes(x = tide_height, y = site, fill = salmonid_sp, colour = site))+
+  geom_density_ridges_gradient() +
+  theme_ridges()
+
+ggplot(salmon, aes(x = salmonid_sp, y = tide_binned, fill = salmonid_pa, colour = site))+
+  geom_density_ridges() +
+  theme_ridges()
+
+
+# delete below - kinda useless
+# 
+# ggplot(salmon, aes(x = tide_height, y = salmonid_sp))+
+#   geom_smooth(aes(x = tide_height, y = salmonid_sp, color = site))
+
+# ggplot(salmon, aes(x = std_tide, y = salmonid_sp, color = site))+
+#   stat_smooth(aes(x = std_tide, y = salmonid_sp), method = loess)+
+#   geom_point(aes(x = std_tide, y = salmonid_sp))+
+#   xlim(0,4) +
+#   ylim(0,10)
+
+
+#example plot
+# ggplot(diamonds, aes(x = price, y = cut, fill = cut)) +
+#   geom_density_ridges() +
+#   theme_ridges() + 
+#   theme(legend.position = "none")
 
 
 #include predicted data
