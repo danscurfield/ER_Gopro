@@ -23,8 +23,16 @@
 library(glmmTMB)
 library(bbmle)
 
-# run models - GLMM with random effects for site and fixed effect for habitat
-# zero-inflated model with poisson distribution (* or + for habitat?)
+
+#test - delete
+#Consider tweedie model
+
+gam_mod <- gam(salmonid_sp ~ std_tide, data = salmon)
+plot(gam_mod, all.terms = TRUE)
+plot(ggpredict(gam_mod, terms = "std_tide"))
+termplot(gam_mod, terms = "std_tide")
+
+############ run models - GLMM with random effects for site and fixed effect for habitat###############
 fit_poisson_a = glmmTMB(salmonid_sp ~ std_tide + habitat + (1|site),
                           data = salmon,
                           family = poisson)
@@ -32,18 +40,16 @@ fit_poisson_a = glmmTMB(salmonid_sp ~ std_tide + habitat + (1|site),
 summary(fit_poisson_a)
 
 #without fixed effect for habitat
-fit_poisson_b = glmmTMB(salmonid_sp ~ std_tide + (1|site), 
-                          data = salmon,
+salmon2 <- salmon %>%
+  filter(!is.na(std_tide))
+
+# salmon$std_tide2 <- salmon$std_tide^2
+
+fit_poisson_b = glmmTMB(salmonid_sp ~ tide_height + poly(tide_height,2) + (1|site), 
+                          data = salmon2,
                           family = poisson)
 
 summary(fit_poisson_b)
-
-predict(fit_poisson_b, salmon)
-nd<- salmon[1,]
-nd$subject <- "new"
-predict(fit_poisson_b, newdata=nd, allow.new.levels=TRUE)
-nd_pop<- data.frame(tide_height=unique(salmon$tide_height), site=NA)
-plot(predict(fit_poisson_b, newdata=nd_pop))
 
 
 #with random effect for habitat
@@ -56,44 +62,52 @@ fit_poisson_d = glmmTMB(salmonid_sp ~ std_tide,
                           data = salmon, 
                           family = poisson)
 
+
+
+
+
 #summary(fit_zipoisson_d)
 
-#zero-inflated glmm with random effect for site and w/o fixed effect for habitat is the best model - fit_zipoission_b
+#glmm with random effect for site and w/o fixed effect for habitat is the best model - fit_poission_b
 AICtab(fit_poisson_a, fit_poisson_b, fit_poisson_c, fit_poisson_d)
 
 
+####Zer0-inflated glmm#############
+
+
+
 # zero-inflated model with poisson distribution (* or + for habitat?)
-fit_poisson_a = glmmTMB(salmonid_sp ~ std_tide + habitat + (1|site),
+fit_zipoisson_a = glmmTMB(salmonid_sp ~ std_tide + habitat + (1|site),
+                        ziformula = ~ 1, 
                         data = salmon,
                         family = poisson)
 
 summary(fit_poisson_a)
 
 #without fixed effect for habitat
-fit_poisson_b = glmmTMB(salmonid_sp ~ std_tide + (1|site), 
-                        data = salmon,
+fit_zipoisson_b = glmmTMB(salmonid_sp ~ tide_height + poly(tide_height,2) + (1|site), 
+                        ziformula = ~ 1, 
+                        data = salmon2,
                         family = poisson)
 
 summary(fit_poisson_b)
 
-predict(fit_poisson_b, salmon)
-nd<- salmon[1,]
-nd$subject <- "new"
-predict(fit_poisson_b, newdata=nd, allow.new.levels=TRUE)
-nd_pop<- data.frame(tide_height=unique(salmon$tide_height), site=NA)
-plot(predict(fit_poisson_b, newdata=nd_pop))
-
 
 #with random effect for habitat
-fit_poisson_c = glmmTMB(salmonid_sp ~ std_tide + (1|habitat),
+fit_zipoisson_c = glmmTMB(salmonid_sp ~ std_tide + (1|habitat),
+                        ziformula = ~ 1, 
                         data = salmon,
                         family = poisson)
 
 #with no random effect or fixed effect for habitat or site
-fit_poisson_d = glmmTMB(salmonid_sp ~ std_tide, 
+fit_zipoisson_d = glmmTMB(salmonid_sp ~ std_tide, 
+                        ziformula = ~ 1, 
                         data = salmon, 
                         family = poisson)
 
+AICtab(fit_zipoisson_a, fit_zipoisson_b, fit_zipoisson_c, fit_zipoisson_d)
+
+AICtab(fit_poisson_a, fit_poisson_b, fit_poisson_c, fit_poisson_d, fit_zipoisson_a, fit_zipoisson_b, fit_zipoisson_c, fit_zipoisson_d)
 
 
 #fit model with negative bimomial distribution
