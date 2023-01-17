@@ -34,21 +34,21 @@ View(salmon)
 
 #standardize tide height at each site by zero-ing tide height at first wetted.
 ## waypoint_name and their respect elevation from sea level (0 tide)
-## sal_gp01-2 - 3.15 
-## sal_gp02-2 - 3.47
-## sal_gp03-2 - 3.47
-## sal_gp03-3 - 3.71
-## sal_gp03-new - 2.76
-## sal_gp04-2 - 3.32
-## sal_gp05-2 - 3.47
+## sal_gp01-2 - 3.15 - correct    - sal1
+## sal_gp02-2 - 3.47 - correct    - sal2
+## sal_gp03-2 - 3.47 - 1.90       - sal3
+## sal_gp03-3 - 3.71 - 2.04       - sal4
+## sal_gp03-new - 2.76 - correct  - sal5
+## sal_gp04-2 - 3.32 - correct    - sal6
+## sal_gp05-2 - 3.47 -3.20        - sal7
 
 salmon$cam_elev<- ifelse(salmon$waypoint_name=="sal_gp01-2", 3.15,
                   ifelse(salmon$waypoint_name == "sal_gp02-2", 3.47, 
-                  ifelse(salmon$waypoint_name=="sal_gp03-2", 3.47,
-                  ifelse(salmon$waypoint_name=="sal_gp03-3", 3.71,
+                  ifelse(salmon$waypoint_name=="sal_gp03-2", 1.90,
+                  ifelse(salmon$waypoint_name=="sal_gp03-3", 2.04,
                   ifelse(salmon$waypoint_name=="sal_gp03-new", 2.76,
                   ifelse(salmon$waypoint_name=="sal_gp04-2", 3.32,
-                  ifelse(salmon$waypoint_name=="sal_gp05-2", 3.47, NA
+                  ifelse(salmon$waypoint_name=="sal_gp05-2", 3.20, NA
                          )))))))
 #to adequately zero the camera heights but keep zero data substract the difference bt lowest camera elevation from all camera elevations and exclude tide below same threshold (highest low tide). 
 ## the highest low-tide of our study period is 1.59m which occured on 2022-06-07.(don't need this simce counts only go to daily low tide).
@@ -64,11 +64,14 @@ salmon$cam_elev<- ifelse(salmon$waypoint_name=="sal_gp01-2", 3.15,
 #salmon$tide_correction = tide height - (camera elevation - elevation of lowest camera). To have each site start counting close to a corrected 0m point.
 #salmon$std_tide is good! just need to make is so Salmon_sp etc. is NA when std_tide is negative! yeeehooo.
 
+#May want to delete below - tide correction and standardizations are off
 
-salmon$tide_correction <- salmon$tide_height-(salmon$cam_elev-2.76)
+# salmon$tide_correction <- salmon$tide_height-(salmon$cam_elev-2.76)
+# 
+# salmon$std_tide <- salmon$tide_height-(salmon$cam_elev-2.76)-(salmon$cam_elev-1.59)+1.59 
 
-salmon$std_tide <- salmon$tide_height-(salmon$cam_elev-2.76)-(salmon$cam_elev-1.59)+1.59 
-
+salmon$std_tide <- (salmon$tide_height-salmon$cam_elev)+1.90
+salmon$camera_depth <- salmon$std_tide - 1.59 #this is probably redundant
 
 
 #convert waypoint_name strings to site names
@@ -89,9 +92,9 @@ levels(salmon$waypoint_name)
 ## unneccesary rows = other estuary data, std tide <0, and filter trial launches. 
 
 salmon <- salmon %>%
-  subset(select=-c(2,4:11,14:15,17,20:25, 27:33,35:40)) %>%
+  subset(select=-c(2,4:10,14:15,17,20:25, 27:33,35:40)) %>%
   subset(estuary!="cluxewe" & estuary!="englishman" & estuary!="nanaimo" & estuary!="cowichan" | is.na(estuary)) %>%
-  #filter(std_tide>0 | is.na(salmonid_sp)) %>%
+  #filter(zero_tide>0 | is.na(salmonid_sp)) %>%
   dplyr::rename(site=waypoint_name) %>%
   subset(launch!="gp001"&launch!="gp002"&launch!="gp003" | is.na(launch))
 
@@ -100,14 +103,21 @@ salmon <- salmon %>%
 salmon$salmonid_sp <- ifelse(salmon$std_tide>0, salmon$salmonid_sp, NA)
 salmon$sculpin_sp <- ifelse(salmon$std_tide>0, salmon$sculpin_sp, NA)
 salmon$flatfish_sp <- ifelse(salmon$std_tide>0, salmon$flatfish_sp, NA)
+salmon$stickleback_sp <- ifelse(salmon$std_tide>0, salmon$stickleback_sp, NA)
 
 #mutate df to get presence absence data
 
 salmon$salmonid_pa <- ifelse(salmon$salmonid_sp=="0", 0, 1)
 salmon$sculpin_pa <- ifelse(salmon$sculpin_sp=="0", 0, 1)
 salmon$flatfish_pa <- ifelse(salmon$flatfish_sp=="0", 0, 1)
+salmon$stickleback_pa <- ifelse(salmon$stickleback_sp=="0", 0, 1)
 
+#bin tide heights to the nearest 0.5 m. 
+salmon$tide_binned <- round_any(salmon$std_tide, 0.5)
 
+#exclude any NA's
+salmon <- salmon %>%
+  filter(!is.na(std_tide))
 
 #can probably delete below
 
